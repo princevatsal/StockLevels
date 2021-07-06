@@ -1,9 +1,9 @@
 import React from 'react';
 
 import {SafeAreaView, Text} from 'react-native';
-import GoThrough from './src/goThrough';
+import HomePage from './src/homePage';
 const App = () => {
-  return <GoThrough />;
+  return <HomePage />;
 };
 
 export default App;
