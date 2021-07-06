@@ -6,6 +6,7 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import Background from './assets/background2.png';
 import Bull from './assets/bull.png';
@@ -24,51 +25,53 @@ export default function GoThrough() {
   };
   return (
     <ImageBackground source={Background} style={styles.container}>
-      <View style={styles.bullCover}>
-        <Image source={Bull} style={styles.bull} />
-      </View>
-      <View style={styles.main}>
-        <Text style={styles.head}>Get Started And </Text>
-        <Text style={styles.head2}>Book Profit</Text>
-        <View style={styles.para}>
-          <Point text={'here goes first point'} />
-          <Point text={'here goes first point'} />
-          <Point text={'here goes first point'} />
-          <Point text={'here goes first point here goes '} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.bullCover}>
+          <Image source={Bull} style={styles.bull} />
         </View>
-      </View>
-      <Text style={styles.head3}>Be 100% profitable only at</Text>
-      <View style={styles.priceCard}>
-        <View style={styles.left}>
-          <View style={styles.overlay}>
-            <Image source={Bag} style={styles.overlayIcon} />
-          </View>
-          <View style={styles.left2}>
-            <Text style={styles.quote}>Get Entry And </Text>
-            <Text style={styles.quote}>Exit Daily</Text>
+        <View style={styles.main}>
+          <Text style={styles.head}>Get Started And </Text>
+          <Text style={styles.head2}>Book Profit</Text>
+          <View style={styles.para}>
+            <Point text={'here goes first point'} />
+            <Point text={'here goes first point'} />
+            <Point text={'here goes first point'} />
+            <Point text={'here goes first point here goes '} />
           </View>
         </View>
-        <Text style={styles.price}>{'\u20B9'} 200</Text>
-      </View>
-      <View style={styles.priceCard}>
-        <View style={styles.left}>
-          <View style={styles.overlay}>
-            <Image source={Bag} style={styles.overlayIcon} />
+        <Text style={styles.head3}>Be 100% profitable only at</Text>
+        <View style={styles.priceCard}>
+          <View style={styles.left}>
+            <View style={styles.overlay}>
+              <Image source={Bag} style={styles.overlayIcon} />
+            </View>
+            <View style={styles.left2}>
+              <Text style={styles.quote}>Get Entry And </Text>
+              <Text style={styles.quote}>Exit Daily</Text>
+            </View>
           </View>
-          <View style={styles.left2}>
-            <Text style={styles.quote}>Get Entry And </Text>
-            <Text style={styles.quote}>Exit Monthly</Text>
-          </View>
+          <Text style={styles.price}>{'\u20B9'} 200</Text>
         </View>
-        <Text style={styles.price}>{'\u20B9'} 5K</Text>
-      </View>
-      <View style={styles.btnCover}>
-        <TouchableOpacity style={styles.button}>
-          <Image source={User} style={styles.user} />
-          <Text style={styles.btnTxt}>Login</Text>
-          <Image source={Right} style={styles.right} />
-        </TouchableOpacity>
-      </View>
+        <View style={styles.priceCard}>
+          <View style={styles.left}>
+            <View style={styles.overlay}>
+              <Image source={Bag} style={styles.overlayIcon} />
+            </View>
+            <View style={styles.left2}>
+              <Text style={styles.quote}>Get Entry And </Text>
+              <Text style={styles.quote}>Exit Monthly</Text>
+            </View>
+          </View>
+          <Text style={styles.price}>{'\u20B9'} 5K</Text>
+        </View>
+        <View style={styles.btnCover}>
+          <TouchableOpacity style={styles.button}>
+            <Image source={User} style={styles.user} />
+            <Text style={styles.btnTxt}>Login</Text>
+            <Image source={Right} style={styles.right} />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </ImageBackground>
   );
 }

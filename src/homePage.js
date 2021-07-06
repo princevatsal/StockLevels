@@ -25,7 +25,7 @@ import Minus from './assets/minus.png';
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [type, setType] = useState('All');
+  const [type, setType] = useState('ALL');
   const [types, setTypes] = useState(['FUT', 'STX', 'NON']);
   const [modalVisible, setModalVisible] = useState(false);
   const [data, setData] = useState([
@@ -134,21 +134,23 @@ export default function HomePage() {
     );
   };
   useEffect(() => {
-    var q = query.trim();
+    var q = query.trim().toUpperCase();
     if (q == '') {
       setFilteredData([]);
     } else {
       if (type == 'ALL') {
-        setFilteredData(data.filter(item => item.name.includes(q)));
+        setFilteredData(
+          data.filter(item => item.name.toUpperCase().includes(q)),
+        );
       } else {
         setFilteredData(
           data
             .filter(item => item.type == type)
-            .filter(item => item.name.includes(q)),
+            .filter(item => item.name.toUpperCase().includes(q)),
         );
       }
     }
-  }, [query, type]);
+  }, [query, type, data]);
   return (
     <ImageBackground source={Background} style={styles.container}>
       {/* <ScrollView style={styles.containerCover}> */}
@@ -179,31 +181,33 @@ export default function HomePage() {
           </TouchableOpacity>
         )}
       </View>
-      <View style={styles.bottom}>
-        <Text style={styles.brand}>Search Your Ticker Here </Text>
+      <View>
+        <View style={styles.bottom}>
+          <Text style={styles.brand}>Search Your Ticker Here </Text>
 
-        <View style={styles.search}>
-          <Image style={styles.glass} source={Glass} />
-          <TextInput
-            value={query}
-            onChangeText={e => {
-              setQuery(e);
-            }}
-            style={styles.query}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisible(true);
-            }}>
-            <Image style={styles.glass2} source={Keep} />
-          </TouchableOpacity>
+          <View style={styles.search}>
+            <Image style={styles.glass} source={Glass} />
+            <TextInput
+              value={query}
+              onChangeText={e => {
+                setQuery(e);
+              }}
+              style={styles.query}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                setModalVisible(true);
+              }}>
+              <Image style={styles.glass2} source={Keep} />
+            </TouchableOpacity>
+          </View>
         </View>
+        <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
+          {filteredData.map(item => (
+            <Option type={item.type} ticker={item.name} />
+          ))}
+        </ScrollView>
       </View>
-      <ScrollView style={styles.options}>
-        {filteredData.map(item => (
-          <Option type={item.type} ticker={item.name} />
-        ))}
-      </ScrollView>
       <Modal
         animationType="slide"
         transparent={true}
@@ -237,8 +241,8 @@ export default function HomePage() {
           </View>
         </View>
       </Modal>
-      <ScrollView>
-        <View style={styles.content}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{marginTop: 60}}>
+        <View style={{...styles.content, marginTop: 0}}>
           <Text style={styles.brand2}>Your Tickers </Text>
           <Ticker type="FUT" ticker="Nifty" />
           <Ticker type="STX" ticker="SBI" />

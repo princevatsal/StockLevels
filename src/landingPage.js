@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Linking,
   ImageBackground,
+  ScrollView,
 } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import Brand from './assets/brand.png';
@@ -16,45 +17,47 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   return (
     <ImageBackground source={Background} style={styles.container}>
-      <Text style={styles.headText}>How TO ... </Text>
-      <View style={styles.videoCover}>
-        <View style={styles.video}>
-          <YoutubePlayer
-            height={300}
-            play={true}
-            forceAndroidAutoplay={false}
-            videoId={'84WIaK3bl_s'}
-            onChangeState={e => {
-              if (e != 'unstarted') {
-                setLoading(false);
-              } else {
-                setLoading(true);
-              }
-            }}
-          />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={styles.headText}>How TO ... </Text>
+        <View style={styles.videoCover}>
+          <View style={styles.video}>
+            <YoutubePlayer
+              height={300}
+              play={true}
+              forceAndroidAutoplay={false}
+              videoId={'84WIaK3bl_s'}
+              onChangeState={e => {
+                if (e != 'unstarted') {
+                  setLoading(false);
+                } else {
+                  setLoading(true);
+                }
+              }}
+            />
+          </View>
+          {loading && (
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL('https://www.youtube.com/watch?v=izQ0jdLZWco');
+              }}
+              style={styles.loading}>
+              <Image source={Youtube} style={styles.youtube} />
+            </TouchableOpacity>
+          )}
         </View>
-        {loading && (
-          <TouchableOpacity
-            onPress={() => {
-              Linking.openURL('https://www.youtube.com/watch?v=izQ0jdLZWco');
-            }}
-            style={styles.loading}>
-            <Image source={Youtube} style={styles.youtube} />
+        <View style={styles.imgCover}>
+          <Image source={Brand} style={styles.img} />
+        </View>
+        <View style={styles.bottom}>
+          <Text style={styles.brand}>Analyse Stocks Like A Pro</Text>
+          <Text style={styles.info}>
+            With us , make your trading super simple and profitable
+          </Text>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.btnTxt}>Get Started</Text>
           </TouchableOpacity>
-        )}
-      </View>
-      <View style={styles.imgCover}>
-        <Image source={Brand} style={styles.img} />
-      </View>
-      <View style={styles.bottom}>
-        <Text style={styles.brand}>Analyse Stocks Like A Pro</Text>
-        <Text style={styles.info}>
-          With us , make your trading super simple and profitable
-        </Text>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.btnTxt}>Get Started</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </ScrollView>
     </ImageBackground>
   );
 }
