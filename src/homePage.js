@@ -203,8 +203,8 @@ export default function HomePage() {
           </View>
         </View>
         <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
-          {filteredData.map(item => (
-            <Option type={item.type} ticker={item.name} />
+          {filteredData.map((item, index) => (
+            <Option type={item.type} ticker={item.name} key={index} />
           ))}
         </ScrollView>
       </View>
@@ -234,8 +234,8 @@ export default function HomePage() {
                 setModalVisible(false);
               }}>
               <Picker.Item label="ALL" value="ALL" />
-              {types.map(item => (
-                <Picker.Item label={item} value={item} />
+              {types.map((item, index) => (
+                <Picker.Item label={item} value={item} key={index} />
               ))}
             </Picker>
           </View>
