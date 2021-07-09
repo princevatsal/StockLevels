@@ -9,11 +9,11 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import Glass from './assets/glass.png';
-import Background from './assets/background.png';
-import Add from './assets/plus.png';
-import Tick from './assets/tick.png';
-export default function Strikes() {
+import Glass from '../assets/glass.png';
+import Background from '../assets/background.png';
+import Add from '../assets/plus.png';
+import Tick from '../assets/tick.png';
+export default function Strikes({navigation}) {
   const [query, setQuery] = useState('');
   const [data, setData] = useState([
     {
@@ -72,8 +72,14 @@ export default function Strikes() {
         </View>
       </View>
       <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
-        {filteredData.map(item => (
-          <Option ticker={item.name} img={Tick} />
+        {filteredData.map((item, index) => (
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('subs');
+            }}
+            key={index}>
+            <Option ticker={item.name} img={Add} />
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </ImageBackground>

@@ -10,10 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import Brand from './assets/brand.png';
-import Youtube from './assets/youtube.png';
-import Background from './assets/background.png';
-export default function LandingPage() {
+import Brand from '../assets/brand.png';
+import Youtube from '../assets/youtube.png';
+import Background from '../assets/background.png';
+export default function LandingPage({navigation}) {
   const [loading, setLoading] = useState(true);
   return (
     <ImageBackground source={Background} style={styles.container}>
@@ -23,15 +23,12 @@ export default function LandingPage() {
           <View style={styles.video}>
             <YoutubePlayer
               height={300}
-              play={true}
+              play={false}
               forceAndroidAutoplay={false}
               videoId={'84WIaK3bl_s'}
-              onChangeState={e => {
-                if (e != 'unstarted') {
-                  setLoading(false);
-                } else {
-                  setLoading(true);
-                }
+              onReady={e => {
+                console.log('ready', e);
+                setLoading(false);
               }}
             />
           </View>
@@ -53,7 +50,11 @@ export default function LandingPage() {
           <Text style={styles.info}>
             With us , make your trading super simple and profitable
           </Text>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate('goThrough');
+            }}>
             <Text style={styles.btnTxt}>Get Started</Text>
           </TouchableOpacity>
         </View>
@@ -122,6 +123,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 20,
     elevation: 4,
+    marginBottom: 20,
   },
   btnTxt: {
     fontFamily: 'Lato-Boldr',

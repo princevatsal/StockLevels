@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import Background from './assets/background2.png';
-import Bull from './assets/bull.png';
-import Okay from './assets/okay.png';
-import Bag from './assets/bag.png';
-import Back from './assets/back.png';
-import Right from './assets/right.png';
-export default function SubsCription() {
+import Background from '../assets/background2.png';
+import Bull from '../assets/bull.png';
+import Okay from '../assets/okay.png';
+import Bag from '../assets/bag.png';
+import Back from '../assets/back.png';
+import Right from '../assets/right.png';
+export default function SubsCription({navigation}) {
   const [selected, setSelected] = useState(null);
 
   const Point = ({text}) => {
@@ -52,9 +52,13 @@ export default function SubsCription() {
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <ImageBackground source={Background} style={styles.container}>
-        <View style={styles.backCover}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+          style={styles.backCover}>
           <Image source={Back} style={styles.back} />
-        </View>
+        </TouchableOpacity>
         <View style={styles.bullCover}>
           <Image source={Bull} style={styles.bull} />
         </View>

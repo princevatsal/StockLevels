@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useContext} from 'react';
 import {
   StyleSheet,
   Image,
@@ -8,13 +8,17 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import Background from './assets/background2.png';
-import Bull from './assets/bull.png';
-import Okay from './assets/okay.png';
-import Bag from './assets/bag.png';
-import User from './assets/user.png';
-import Right from './assets/right.png';
-export default function GoThrough() {
+import Background from '../assets/background2.png';
+import Bull from '../assets/bull.png';
+import Okay from '../assets/okay.png';
+import Bag from '../assets/bag.png';
+import User from '../assets/user.png';
+import Right from '../assets/right.png';
+import AsyncStorage from '@react-native-community/async-storage';
+import {UserContext} from '../context/userContext';
+export default function GoThrough({navigation}) {
+  const {setVisited} = useContext(UserContext);
+
   const Point = ({text}) => {
     return (
       <View style={styles.point}>
@@ -33,10 +37,10 @@ export default function GoThrough() {
           <Text style={styles.head}>Get Started And </Text>
           <Text style={styles.head2}>Book Profit</Text>
           <View style={styles.para}>
-            <Point text={'here goes first point'} />
-            <Point text={'here goes first point'} />
-            <Point text={'here goes first point'} />
-            <Point text={'here goes first point here goes '} />
+            <Point text={'Make consistant profits regularly'} />
+            <Point text={'99% working effeciency '} />
+            <Point text={'Daily market levels before market opening'} />
+            <Point text={'Get analysis of any stock , future or option '} />
           </View>
         </View>
         <Text style={styles.head3}>Be 100% profitable only at</Text>
@@ -65,7 +69,14 @@ export default function GoThrough() {
           <Text style={styles.price}>{'\u20B9'} 5K</Text>
         </View>
         <View style={styles.btnCover}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              AsyncStorage.setItem('visited', 'yes')
+                .then(() => {})
+                .catch(() => {});
+              setVisited(true);
+            }}>
             <Image source={User} style={styles.user} />
             <Text style={styles.btnTxt}>Login</Text>
             <Image source={Right} style={styles.right} />
@@ -122,7 +133,7 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
     resizeMode: 'contain',
-    elevation: 4,
+    // elevation: 4,
     marginRight: 15,
   },
   pointTxt: {
@@ -171,6 +182,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginTop: 30,
+    marginBottom: 10,
   },
   button: {
     width: 170,

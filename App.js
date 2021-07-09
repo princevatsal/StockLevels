@@ -1,9 +1,13 @@
 import React from 'react';
+import Navigation from './src/navigation';
+import {UserProvider} from './src/context/userContext';
 
-import {SafeAreaView, Text} from 'react-native';
-import LandingPage from './src/landingPage';
 const App = () => {
-  return <LandingPage />;
+  return (
+    <UserProvider>
+      <Navigation />
+    </UserProvider>
+  );
 };
 
 export default App;

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "7717514871",
+    "project_id": "stocklevelcalc",
+    "storage_bucket": "stocklevelcalc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:7717514871:android:ce05219d4f9b0500752072",
+        "android_client_info": {
+          "package_name": "com.sharemarketanalyser"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "7717514871-uier49c5pfhbvbap1savaqp342i1sfjk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sharemarketanalyser",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "7717514871-7qg88gtsav7930mn3jl5vds8n20ljlgl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBar_Zg3_H9wgaipSL8ugYmServ8ZQTslo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "7717514871-7qg88gtsav7930mn3jl5vds8n20ljlgl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -13,61 +13,65 @@ import {
   Modal,
 } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import Brand from './assets/brand.png';
-import Youtube from './assets/youtube.png';
-import Background from './assets/background.png';
-import Glass from './assets/glass.png';
-import Keep from './assets/keep.png';
-import Add from './assets/plus.png';
-import Cross from './assets/cross.png';
-import Send from './assets/send.png';
-import Minus from './assets/minus.png';
-export default function HomePage() {
+import Brand from '../assets/brand.png';
+import Youtube from '../assets/youtube.png';
+import Background from '../assets/background.png';
+import Glass from '../assets/glass.png';
+import Keep from '../assets/keep.png';
+import Add from '../assets/plus.png';
+import Cross from '../assets/cross.png';
+import Send from '../assets/send.png';
+import Minus from '../assets/minus.png';
+import AsyncStorage from '@react-native-community/async-storage';
+import firestore from '@react-native-firebase/firestore';
+
+export default function HomePage({navigation}) {
+  // AsyncStorage.removeItem('visited');
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [type, setType] = useState('ALL');
   const [types, setTypes] = useState(['FUT', 'STX', 'NON']);
   const [modalVisible, setModalVisible] = useState(false);
-  const [data, setData] = useState([
-    {
-      type: 'FUT',
-      name: 'Nifty',
-    },
-    {
-      type: 'FUT',
-      name: 'BankNifty',
-    },
-    {
-      type: 'STX',
-      name: 'Reliance',
-    },
-    {
-      type: 'STX',
-      name: 'SBI',
-    },
-  ]);
+  const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
+  useEffect(() => {
+    firestore()
+      .collection('TickerList')
+      .doc('items')
+      .get()
+      .then(data => {
+        var Data = data.data();
+        var d1 = Data.list.map(item => ({name: item, type: 'STX'}));
+        setData(d1);
+      })
+      .catch('unable to fetch');
+  }, []);
   const Option = ({type, ticker}) => {
     return (
       <View style={styles.option}>
         <View style={styles.left}>
-          <Text style={styles.optTxt1}>{type}</Text>
+          {/* <Text style={styles.optTxt1}>{type}</Text> */}
           <Text style={styles.optTxt2}>
-            {ticker.length > 23 ? ticker.slice(0, 23) + '..' : ticker}
+            {ticker.length > 31 ? ticker.slice(0, 31) + '..' : ticker}
           </Text>
         </View>
         <View style={styles.right}>
-          <View style={styles.addBtn}>
+          <TouchableOpacity
+            style={styles.addBtn}
+            onPress={() => {
+              // navigation.navigate('strikes');
+              navigation.navigate('strikes');
+            }}>
             <Image style={styles.addIcon} source={Add} />
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     );
   };
   const Ticker = ({type, ticker}) => {
     return (
-      <TouchableOpacity style={styles.optionT}>
+      <View style={styles.optionT}>
         <View style={styles.left}>
           <Text style={styles.optTxt1T}>{type}</Text>
           <Text style={styles.optTxt2T}>
@@ -79,7 +83,7 @@ export default function HomePage() {
           <Image style={styles.addIcon2} source={Send} />
           {/* </View> */}
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
   const Watch = ({ticker}) => {
@@ -159,15 +163,11 @@ export default function HomePage() {
         <View style={styles.video}>
           <YoutubePlayer
             height={300}
-            play={true}
+            play={false}
             forceAndroidAutoplay={false}
             videoId={'84WIaK3bl_s'}
-            onChangeState={e => {
-              if (e != 'unstarted') {
-                setLoading(false);
-              } else {
-                setLoading(true);
-              }
+            onReady={e => {
+              setLoading(false);
             }}
           />
         </View>
@@ -203,7 +203,7 @@ export default function HomePage() {
           </View>
         </View>
         <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
-          {filteredData.map((item, index) => (
+          {filteredData.slice(0, 18).map((item, index) => (
             <Option type={item.type} ticker={item.name} key={index} />
           ))}
         </ScrollView>
@@ -244,7 +244,9 @@ export default function HomePage() {
       <ScrollView showsVerticalScrollIndicator={false} style={{marginTop: 60}}>
         <View style={{...styles.content, marginTop: 0}}>
           <Text style={styles.brand2}>Your Tickers </Text>
-          <Ticker type="FUT" ticker="Nifty" />
+          <TouchableOpacity>
+            <Ticker type="FUT" ticker="Nifty" />
+          </TouchableOpacity>
           <Ticker type="STX" ticker="SBI" />
         </View>
         <View style={styles.content}>
@@ -427,7 +429,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   optTxt2: {
-    fontSize: 16,
+    fontSize: 14,
     letterSpacing: 0.5,
     fontWeight: '100',
     fontFamily: 'Nunito-SemiBold',
