@@ -37,15 +37,15 @@ export default function HomePage({navigation}) {
 
   useEffect(() => {
     firestore()
-      .collection('TickerList')
-      .doc('items')
+      .collection('MetaData')
+      .doc('symbols')
       .get()
       .then(data => {
         var Data = data.data();
         var d1 = Data.list.map(item => ({name: item, type: 'STX'}));
         setData(d1);
       })
-      .catch('unable to fetch');
+      .catch(() => console.log('unable to fetch'));
   }, []);
   const Option = ({type, ticker}) => {
     return (
@@ -61,7 +61,7 @@ export default function HomePage({navigation}) {
             style={styles.addBtn}
             onPress={() => {
               // navigation.navigate('strikes');
-              navigation.navigate('strikes');
+              navigation.navigate('subs', {symbol: ticker});
             }}>
             <Image style={styles.addIcon} source={Add} />
           </TouchableOpacity>

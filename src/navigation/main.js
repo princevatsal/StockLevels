@@ -4,8 +4,7 @@ import {UserContext} from '../context/userContext';
 import HomePage from '../screens/homePage';
 import Subscription from '../screens/subscription';
 import Strikes from '../screens/strikes';
-import LandingPage from '../screens/landingPage';
-import GoThrough from '../screens/goThrough';
+import RazorPay from '../screens/razorPay';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {View, Text} from 'react-native';
 const Stack = createDrawerNavigator();
@@ -30,6 +29,7 @@ const MainStack = () => {
         <Stack.Screen name="home" component={HomePage} />
         <Stack.Screen name="subs" component={Subscription} />
         <Stack.Screen name="strikes" component={Strikes} />
+        <Stack.Screen name="razorpay" component={RazorPay} />
       </Stack.Navigator>
     </NavigationContainer>
   );

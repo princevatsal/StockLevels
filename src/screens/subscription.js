@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   StyleSheet,
   Image,
@@ -14,9 +14,11 @@ import Okay from '../assets/okay.png';
 import Bag from '../assets/bag.png';
 import Back from '../assets/back.png';
 import Right from '../assets/right.png';
-export default function SubsCription({navigation}) {
+import {UserContext} from '../context/userContext';
+export default function SubsCription({navigation, route}) {
   const [selected, setSelected] = useState(null);
-
+  const {symbol} = route.params;
+  const {user} = useContext(UserContext);
   const Point = ({text}) => {
     return (
       <View style={styles.point}>
@@ -64,7 +66,7 @@ export default function SubsCription({navigation}) {
         </View>
         <View style={styles.main}>
           <Text style={styles.head}>Guarenteed Working </Text>
-          <Text style={styles.head2}>Levels BankNifty</Text>
+          <Text style={styles.head2}>Levels "{symbol}"</Text>
           <View style={styles.para}>
             <Point
               text={`${
@@ -101,7 +103,15 @@ export default function SubsCription({navigation}) {
         />
         {selected != null && (
           <View style={styles.btnCover}>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                navigation.navigate('razorpay', {
+                  symbol,
+                  refresh: Date.now(),
+                  amount: selected == 'daily' ? 200 : 5000,
+                });
+              }}>
               <Text style={styles.btnTxt}>Buy Now</Text>
               <Image source={Right} style={styles.right} />
             </TouchableOpacity>
