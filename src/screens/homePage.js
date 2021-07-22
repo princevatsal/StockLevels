@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,9 +9,9 @@ import {
   TextInput,
   ImageBackground,
   ScrollView,
-  Picker,
   Modal,
 } from 'react-native';
+import {Picker} from '@react-native-picker/picker';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import Brand from '../assets/brand.png';
 import Youtube from '../assets/youtube.png';
@@ -24,6 +24,7 @@ import Send from '../assets/send.png';
 import Minus from '../assets/minus.png';
 import AsyncStorage from '@react-native-community/async-storage';
 import firestore from '@react-native-firebase/firestore';
+import {UserContext} from '../context/userContext';
 
 export default function HomePage({navigation}) {
   // AsyncStorage.removeItem('visited');
@@ -34,6 +35,7 @@ export default function HomePage({navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const {userInfo, user, setUserInfo} = useContext(UserContext);
 
   useEffect(() => {
     firestore()
@@ -47,6 +49,20 @@ export default function HomePage({navigation}) {
       })
       .catch(() => console.log('unable to fetch'));
   }, []);
+  useEffect(() => {
+    if (user) {
+      firestore()
+        .collection('Users')
+        .doc(user.uid)
+        .get()
+        .then(data => {
+          var userData = data.data();
+          if (userData) {
+            setUserInfo(userData);
+          }
+        });
+    }
+  }, [user]);
   const Option = ({type, ticker}) => {
     return (
       <View style={styles.option}>
@@ -71,7 +87,11 @@ export default function HomePage({navigation}) {
   };
   const Ticker = ({type, ticker}) => {
     return (
-      <View style={styles.optionT}>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('strikes', {symbol: ticker});
+        }}
+        style={styles.optionT}>
         <View style={styles.left}>
           <Text style={styles.optTxt1T}>{type}</Text>
           <Text style={styles.optTxt2T}>
@@ -83,60 +103,10 @@ export default function HomePage({navigation}) {
           <Image style={styles.addIcon2} source={Send} />
           {/* </View> */}
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
-  const Watch = ({ticker}) => {
-    return (
-      <View style={styles.optionW}>
-        <TouchableOpacity style={styles.minusCover}>
-          <Image source={Minus} style={styles.minus} />
-        </TouchableOpacity>
-        <View
-          style={{
-            ...styles.row,
-            paddingVertical: 5,
-          }}>
-          <Text style={styles.headingW}>{ticker}</Text>
-          <View style={styles.rightTargets}>
-            <Text style={styles.target}>T1</Text>
-            <Text style={styles.target}>T2</Text>
-            <Text style={{...styles.target, borderRightWidth: 0}}>T3</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={{...styles.headingW, color: 'green'}}>
-            {'Buy above'} 15900
-          </Text>
-          <View style={styles.rightTargets}>
-            <Text style={{...styles.target, color: 'green'}}>15,666</Text>
-            <Text style={{...styles.target, color: 'green'}}>15,700</Text>
-            <Text
-              style={{...styles.target, color: 'green', borderRightWidth: 0}}>
-              15,800
-            </Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Text style={{...styles.headingW, color: 'red'}}>
-            {'Sell Below'} 14900
-          </Text>
-          <View style={styles.rightTargets}>
-            <Text style={{...styles.target, color: 'red'}}>14,756</Text>
-            <Text style={{...styles.target, color: 'red'}}>14,556</Text>
-            <Text
-              style={{
-                ...styles.target,
-                color: 'red',
-                borderRightWidth: 0,
-              }}>
-              14,440
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  };
+
   useEffect(() => {
     var q = query.trim().toUpperCase();
     if (q == '') {
@@ -156,107 +126,125 @@ export default function HomePage({navigation}) {
     }
   }, [query, type, data]);
   return (
-    <ImageBackground source={Background} style={styles.container}>
-      {/* <ScrollView style={styles.containerCover}> */}
-      <Text style={styles.headText}>Tutorial..</Text>
-      <View style={styles.videoCover}>
-        <View style={styles.video}>
-          <YoutubePlayer
-            height={300}
-            play={false}
-            forceAndroidAutoplay={false}
-            videoId={'84WIaK3bl_s'}
-            onReady={e => {
-              setLoading(false);
-            }}
-          />
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <ImageBackground source={Background} style={styles.container}>
+        {/* <ScrollView style={styles.containerCover}> */}
+        <Text style={styles.headText}>Tutorial..</Text>
+        <View style={styles.videoCover}>
+          <View style={styles.video}>
+            <YoutubePlayer
+              height={300}
+              play={false}
+              forceAndroidAutoplay={false}
+              videoId={'84WIaK3bl_s'}
+              onReady={e => {
+                setLoading(false);
+              }}
+            />
+          </View>
+          {loading && (
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL('https://www.youtube.com/watch?v=izQ0jdLZWco');
+              }}
+              style={styles.loading}>
+              <Image source={Youtube} style={styles.youtube} />
+            </TouchableOpacity>
+          )}
         </View>
-        {loading && (
+        <View>
+          <View style={styles.bottom}>
+            <Text style={styles.brand}>Search Your Ticker Here </Text>
+
+            <View style={styles.search}>
+              <Image style={styles.glass} source={Glass} />
+              <TextInput
+                value={query}
+                onChangeText={e => {
+                  setQuery(e);
+                }}
+                style={styles.query}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(true);
+                }}>
+                <Image style={styles.glass2} source={Keep} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <ScrollView
+            style={styles.options}
+            showsVerticalScrollIndicator={false}>
+            {filteredData.slice(0, 18).map(item => (
+              <Option type={item.type} ticker={item.name} key={item.name} />
+            ))}
+          </ScrollView>
+        </View>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}>
+          <View style={styles.modalCover}>
+            <View style={styles.modal}>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+                style={styles.crossCover}>
+                <Image style={styles.cross} source={Cross} />
+              </TouchableOpacity>
+              <Text style={styles.selectTxt}>Select Category</Text>
+              <Picker
+                selectedValue={type}
+                style={{height: 50, width: 150}}
+                mode="dropdown"
+                onValueChange={(itemValue, itemIndex) => {
+                  setType(itemValue);
+                  setModalVisible(false);
+                }}>
+                <Picker.Item label="ALL" value="ALL" />
+                {
+                  // types.map((item, index) => (
+                  //   <Picker.Item label={item} value={item} key={index} />
+                  // ))
+                }
+              </Picker>
+            </View>
+          </View>
+        </Modal>
+        <View style={{marginTop: 60}}>
+          <Text style={styles.brand2}>Your Tickers </Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{
+              ...styles.content,
+              marginTop: 0,
+              height: '30%',
+              overflow: 'hidden',
+            }}>
+            {userInfo &&
+              userInfo.subscription &&
+              userInfo.subscription.map(item => {
+                return (
+                  <Ticker type="F & O" ticker={item.symbol} key={item.symbol} />
+                );
+              })}
+          </ScrollView>
           <TouchableOpacity
             onPress={() => {
-              Linking.openURL('https://www.youtube.com/watch?v=izQ0jdLZWco');
+              navigation.navigate('watchlist');
             }}
-            style={styles.loading}>
-            <Image source={Youtube} style={styles.youtube} />
+            style={styles.watchBtn}>
+            <Text style={styles.watchTxt}>Your WatchList </Text>
           </TouchableOpacity>
-        )}
-      </View>
-      <View>
-        <View style={styles.bottom}>
-          <Text style={styles.brand}>Search Your Ticker Here </Text>
-
-          <View style={styles.search}>
-            <Image style={styles.glass} source={Glass} />
-            <TextInput
-              value={query}
-              onChangeText={e => {
-                setQuery(e);
-              }}
-              style={styles.query}
-            />
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(true);
-              }}>
-              <Image style={styles.glass2} source={Keep} />
-            </TouchableOpacity>
-          </View>
         </View>
-        <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
-          {filteredData.slice(0, 18).map((item, index) => (
-            <Option type={item.type} ticker={item.name} key={index} />
-          ))}
-        </ScrollView>
-      </View>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={styles.modalCover}>
-          <View style={styles.modal}>
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(false);
-              }}
-              style={styles.crossCover}>
-              <Image style={styles.cross} source={Cross} />
-            </TouchableOpacity>
-            <Text style={styles.selectTxt}>Select Category</Text>
-            <Picker
-              selectedValue={type}
-              style={{height: 50, width: 150}}
-              mode="dropdown"
-              onValueChange={(itemValue, itemIndex) => {
-                setType(itemValue);
-                setModalVisible(false);
-              }}>
-              <Picker.Item label="ALL" value="ALL" />
-              {types.map((item, index) => (
-                <Picker.Item label={item} value={item} key={index} />
-              ))}
-            </Picker>
-          </View>
-        </View>
-      </Modal>
-      <ScrollView showsVerticalScrollIndicator={false} style={{marginTop: 60}}>
-        <View style={{...styles.content, marginTop: 0}}>
-          <Text style={styles.brand2}>Your Tickers </Text>
-          <TouchableOpacity>
-            <Ticker type="FUT" ticker="Nifty" />
-          </TouchableOpacity>
-          <Ticker type="STX" ticker="SBI" />
-        </View>
-        <View style={styles.content}>
-          <Text style={styles.brand2}>Your WatchList </Text>
-          <Watch type="FUT" ticker="Nifty 1500 CE 14 AUG 2021" />
-          <Watch type="STX" ticker="REliance 500 CE 18 AUG 2021" />
-        </View>
-      </ScrollView>
-      {/* </ScrollView> */}
-    </ImageBackground>
+        {/* </ScrollView> */}
+      </ImageBackground>
+    </ScrollView>
   );
 }
 
@@ -364,6 +352,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lato-SemiBold',
     fontWeight: '100',
     width: '85%',
+    color: '#000',
   },
   options: {
     marginHorizontal: '5%',
@@ -501,6 +490,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Nunito-SemiBold',
     marginBottom: 15,
+    marginLeft: '3.5%',
   },
   headingW: {fontFamily: 'Lato-Bold', width: '50%'},
   rightTargets: {
@@ -524,5 +514,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     top: 5,
+  },
+  watchBtn: {
+    paddingVertical: 10,
+    backgroundColor: '#000',
+    marginHorizontal: '3%',
+    borderRadius: 20,
+    marginTop: 20,
+  },
+  watchTxt: {
+    color: '#fff',
+    textAlign: 'center',
+    fontFamily: 'Nunito-SemiBold',
   },
 });

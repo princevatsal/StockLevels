@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,79 +8,164 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import Glass from '../assets/glass.png';
 import Background from '../assets/background.png';
 import Add from '../assets/plus.png';
 import Tick from '../assets/tick.png';
-export default function Strikes({navigation}) {
-  const [query, setQuery] = useState('');
-  const [data, setData] = useState([
-    {
-      name: 'Nifty',
-    },
-    {
-      name: 'BankNifty',
-    },
-    {
-      name: 'Reliance',
-    },
-    {
-      name: 'SBI',
-    },
-  ]);
-  const Option = ({ticker, img}) => {
+import firestore from '@react-native-firebase/firestore';
+import {UserContext} from '../context/userContext';
+export default function Strikes({navigation, route}) {
+  const {symbol} = route.params;
+  const [query1, setQuery1] = useState('');
+  const [query2, setQuery2] = useState('');
+  const [query3, setQuery3] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const {updateWatchlist, watchlist} = useContext(UserContext);
+  useEffect(() => {
+    setLoading(true);
+    firestore()
+      .collection('DailyBhav')
+      .where('symbolName', '==', symbol)
+      .get()
+      .then(data => {
+        if (data.docs.length > 0) {
+          const bigData = data.docs.map(item => item.data());
+          const dataToset = bigData.reduce((sum, item) => {
+            return sum.concat(
+              item.data.map(itm => ({
+                EXPIRY_DT: itm.EXPIRY_DT,
+                OPTION_TYP: itm.OPTION_TYP,
+                STRIKE_PR: itm.STRIKE_PR,
+              })),
+            );
+          }, []);
+          setData(dataToset);
+          setFilteredData(dataToset);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [symbol]);
+  const Option = ({expiry, type, strike}) => {
     return (
       <View style={styles.option}>
         <View style={styles.left}>
           <Text style={styles.optTxt2}>
-            {ticker.length > 23 ? ticker.slice(0, 23) + '..' : ticker}
+            {symbol.length > 26 ? symbol.slice(0, 26) + '..' : symbol}
+          </Text>
+          <Text style={styles.optTxt2}>
+            {type.length > 26 ? type.slice(0, 26) + '..' : type}
+          </Text>
+          <Text style={styles.optTxt2}>
+            {strike.length > 26 ? strike.slice(0, 26) + '..' : strike}
+          </Text>
+          <Text style={styles.optTxt2}>
+            {expiry.length > 26 ? expiry.slice(0, 26) + '..' : expiry}
           </Text>
         </View>
         <View style={styles.right}>
-          <TouchableOpacity style={styles.addBtn}>
-            <Image style={styles.addIcon} source={img} />
-          </TouchableOpacity>
+          {!watchlist.find(
+            item =>
+              item.symbol == symbol &&
+              item.expiry == expiry &&
+              item.strike == strike &&
+              item.type == type,
+          ) ? (
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => {
+                updateWatchlist([...watchlist, {symbol, expiry, type, strike}]);
+              }}>
+              <Image style={styles.addIcon} source={Add} />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.addBtn}>
+              <Image style={styles.addIcon} source={Tick} />
+            </View>
+          )}
         </View>
       </View>
     );
   };
-  const [filteredData, setFilteredData] = useState([]);
   useEffect(() => {
-    var q = query.trim().toUpperCase();
-    if (q == '') {
-      setFilteredData(data);
-    } else {
-      setFilteredData(data.filter(item => item.name.toUpperCase().includes(q)));
-      setFilteredData(data.filter(item => item.name.toUpperCase().includes(q)));
-    }
-  }, [query]);
+    var q1 = query1.trim().toUpperCase();
+    var q2 = query2.trim().toUpperCase();
+    var q3 = query3.trim().toUpperCase();
+    setFilteredData(
+      data.filter(
+        item =>
+          item.EXPIRY_DT.includes(q3) &&
+          item.OPTION_TYP.includes(q2) &&
+          item.STRIKE_PR.includes(q1),
+      ),
+    );
+  }, [query1, query2, query3]);
   return (
     <ImageBackground source={Background} style={styles.container}>
-      <Text style={styles.brand}>Add NIFTY instrument to the WatchList</Text>
+      <Text style={styles.brand}>
+        Add "{symbol}" instrument to the WatchList
+      </Text>
       <View style={styles.bottom}>
         <Text style={styles.brand}>Search Your Ticker Here </Text>
         <View style={styles.search}>
           <Image style={styles.glass} source={Glass} />
           <TextInput
-            value={query}
+            value={query1}
             onChangeText={e => {
-              setQuery(e);
+              setQuery1(e);
+            }}
+            keyboardType="numeric"
+            style={styles.query}
+            placeholderTextColor="#a1a1a1"
+            placeholder="ie:- 4500"
+          />
+        </View>
+        <View style={styles.search}>
+          <Image style={styles.glass} source={Glass} />
+          <TextInput
+            value={query2}
+            onChangeText={e => {
+              setQuery2(e);
             }}
             style={styles.query}
+            placeholderTextColor="#a1a1a1"
+            placeholder="ie:- CE/PE/XX"
+          />
+        </View>
+        <View style={styles.search}>
+          <Image style={styles.glass} source={Glass} />
+          <TextInput
+            value={query3}
+            onChangeText={e => {
+              setQuery3(e);
+            }}
+            style={styles.query}
+            placeholderTextColor="#a1a1a1"
+            placeholder="ie:- 02-sept-2021"
           />
         </View>
       </View>
       <ScrollView style={styles.options} showsVerticalScrollIndicator={false}>
-        {filteredData.map((item, index) => (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('subs');
-            }}
-            key={index}>
-            <Option ticker={item.name} img={Add} />
-          </TouchableOpacity>
-        ))}
+        {loading ? (
+          <ActivityIndicator size={30} color="green" style={styles.loading} />
+        ) : (
+          filteredData
+            .slice(0, 20)
+            .map((item, index) => (
+              <Option
+                expiry={item.EXPIRY_DT}
+                type={item.OPTION_TYP}
+                strike={item.STRIKE_PR}
+                key={'' + item.EXPIRY_DT + item.OPTION_TYP + item.STRIKE_PR}
+              />
+            ))
+        )}
       </ScrollView>
     </ImageBackground>
   );
@@ -164,6 +249,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lato-SemiBold',
     fontWeight: '100',
     width: '85%',
+    color: '#000',
   },
   options: {
     marginHorizontal: '1%',
@@ -191,6 +277,8 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: '84%',
+    flexWrap: 'wrap',
   },
   right: {},
   addBtn: {
@@ -220,5 +308,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     fontWeight: '100',
     fontFamily: 'Nunito-SemiBold',
+    marginRight: 10,
   },
+  loading: {marginTop: 100},
 });

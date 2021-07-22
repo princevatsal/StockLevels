@@ -7,6 +7,8 @@ import Strikes from '../screens/strikes';
 import RazorPay from '../screens/razorPay';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {View, Text} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import Watchlist from '../screens/watchlist';
 const Stack = createDrawerNavigator();
 
 const DrawerContent = () => {
@@ -19,7 +21,15 @@ const DrawerContent = () => {
   );
 };
 const MainStack = () => {
-  const {user, setUser} = useContext(UserContext);
+  const {user, setUser, setWatchlist} = useContext(UserContext);
+  useEffect(() => {
+    AsyncStorage.getItem('watchlist').then(watchlist => {
+      if (watchlist) {
+        const parsedWatchlist = JSON.parse(watchlist);
+        setWatchlist(parsedWatchlist);
+      }
+    });
+  }, []);
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -30,6 +40,7 @@ const MainStack = () => {
         <Stack.Screen name="subs" component={Subscription} />
         <Stack.Screen name="strikes" component={Strikes} />
         <Stack.Screen name="razorpay" component={RazorPay} />
+        <Stack.Screen name="watchlist" component={Watchlist} />
       </Stack.Navigator>
     </NavigationContainer>
   );
