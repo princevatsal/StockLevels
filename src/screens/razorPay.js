@@ -9,7 +9,7 @@ const RazorPay = ({navigation, route}) => {
   const {symbol} = route.params;
   const {refresh} = route.params;
   const {amount} = route.params;
-  const {user, setUser} = useContext(UserContext);
+  const {user, setUserInfo} = useContext(UserContext);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
   const proceedPayment = (orderId, amount) => {
@@ -31,7 +31,8 @@ const RazorPay = ({navigation, route}) => {
             .get()
             .then(data => {
               var userInfo = data.data();
-              userInfo && setUser(userInfo);
+              console.log('userdata', userInfo);
+              userInfo && setUserInfo(userInfo);
               navigation.navigate('home');
               setUpdating(false);
             })
@@ -40,7 +41,7 @@ const RazorPay = ({navigation, route}) => {
               navigation.navigate('home');
               setUpdating(false);
             });
-        }, 1000);
+        }, 2500);
         alert('Successfull Payment');
       })
       .catch(error => {

@@ -139,6 +139,7 @@ const PhoneLogin = ({navigation, setPhone}) => {
             <View style={styles.form}>
               <View style={styles.input}>
                 <IntlPhoneInput
+                  phoneInputStyle={{color: '#000'}}
                   onChangeText={onChangeText}
                   defaultCountry="IN"
                 />
@@ -238,6 +239,7 @@ const styles = StyleSheet.create({
     letterSpacing: 14,
     marginBottom: 20,
     marginTop: 30,
+    color: '#000',
   },
   resend: {
     color: '#E76F51',

@@ -10,6 +10,7 @@ import {
   ImageBackground,
   ScrollView,
   Modal,
+  Dimensions,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import YoutubePlayer from 'react-native-youtube-iframe';
@@ -25,7 +26,8 @@ import Minus from '../assets/minus.png';
 import AsyncStorage from '@react-native-community/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import {UserContext} from '../context/userContext';
-
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
 export default function HomePage({navigation}) {
   // AsyncStorage.removeItem('visited');
   const [loading, setLoading] = useState(true);
@@ -85,13 +87,13 @@ export default function HomePage({navigation}) {
       </View>
     );
   };
-  const Ticker = ({type, ticker}) => {
+  const Ticker = ({type, ticker, last}) => {
     return (
       <TouchableOpacity
         onPress={() => {
           navigation.navigate('strikes', {symbol: ticker});
         }}
-        style={styles.optionT}>
+        style={last ? {...styles.optionT, marginBottom: 25} : styles.optionT}>
         <View style={styles.left}>
           <Text style={styles.optTxt1T}>{type}</Text>
           <Text style={styles.optTxt2T}>
@@ -126,53 +128,52 @@ export default function HomePage({navigation}) {
     }
   }, [query, type, data]);
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <ImageBackground source={Background} style={styles.container}>
-        {/* <ScrollView style={styles.containerCover}> */}
-        <Text style={styles.headText}>Tutorial..</Text>
-        <View style={styles.videoCover}>
-          <View style={styles.video}>
-            <YoutubePlayer
-              height={300}
-              play={false}
-              forceAndroidAutoplay={false}
-              videoId={'84WIaK3bl_s'}
-              onReady={e => {
-                setLoading(false);
+    <ImageBackground source={Background} style={styles.container}>
+      <Text style={styles.headText}>Tutorial..</Text>
+      <View style={styles.videoCover}>
+        <View style={styles.video}>
+          <YoutubePlayer
+            height={300}
+            play={false}
+            forceAndroidAutoplay={false}
+            videoId={'84WIaK3bl_s'}
+            onReady={e => {
+              setLoading(false);
+            }}
+          />
+        </View>
+        {loading && (
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL('https://www.youtube.com/watch?v=izQ0jdLZWco');
+            }}
+            style={styles.loading}>
+            <Image source={Youtube} style={styles.youtube} />
+          </TouchableOpacity>
+        )}
+      </View>
+      <View>
+        <View style={styles.bottom}>
+          <Text style={styles.brand}>Search Your Ticker Here </Text>
+
+          <View style={styles.search}>
+            <Image style={styles.glass} source={Glass} />
+            <TextInput
+              value={query}
+              onChangeText={e => {
+                setQuery(e);
               }}
+              style={styles.query}
             />
-          </View>
-          {loading && (
             <TouchableOpacity
               onPress={() => {
-                Linking.openURL('https://www.youtube.com/watch?v=izQ0jdLZWco');
-              }}
-              style={styles.loading}>
-              <Image source={Youtube} style={styles.youtube} />
+                setModalVisible(true);
+              }}>
+              <Image style={styles.glass2} source={Keep} />
             </TouchableOpacity>
-          )}
-        </View>
-        <View>
-          <View style={styles.bottom}>
-            <Text style={styles.brand}>Search Your Ticker Here </Text>
-
-            <View style={styles.search}>
-              <Image style={styles.glass} source={Glass} />
-              <TextInput
-                value={query}
-                onChangeText={e => {
-                  setQuery(e);
-                }}
-                style={styles.query}
-              />
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisible(true);
-                }}>
-                <Image style={styles.glass2} source={Keep} />
-              </TouchableOpacity>
-            </View>
           </View>
+        </View>
+        {filteredData && filteredData.length > 0 && (
           <ScrollView
             style={styles.options}
             showsVerticalScrollIndicator={false}>
@@ -180,78 +181,83 @@ export default function HomePage({navigation}) {
               <Option type={item.type} ticker={item.name} key={item.name} />
             ))}
           </ScrollView>
-        </View>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(!modalVisible);
-          }}>
-          <View style={styles.modalCover}>
-            <View style={styles.modal}>
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisible(false);
-                }}
-                style={styles.crossCover}>
-                <Image style={styles.cross} source={Cross} />
-              </TouchableOpacity>
-              <Text style={styles.selectTxt}>Select Category</Text>
-              <Picker
-                selectedValue={type}
-                style={{height: 50, width: 150}}
-                mode="dropdown"
-                onValueChange={(itemValue, itemIndex) => {
-                  setType(itemValue);
-                  setModalVisible(false);
-                }}>
-                <Picker.Item label="ALL" value="ALL" />
-                {
-                  // types.map((item, index) => (
-                  //   <Picker.Item label={item} value={item} key={index} />
-                  // ))
-                }
-              </Picker>
-            </View>
+        )}
+      </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.modalCover}>
+          <View style={styles.modal}>
+            <TouchableOpacity
+              onPress={() => {
+                setModalVisible(false);
+              }}
+              style={styles.crossCover}>
+              <Image style={styles.cross} source={Cross} />
+            </TouchableOpacity>
+            <Text style={styles.selectTxt}>Select Category</Text>
+            <Picker
+              selectedValue={type}
+              style={{height: 50, width: 150}}
+              mode="dropdown"
+              onValueChange={(itemValue, itemIndex) => {
+                setType(itemValue);
+                setModalVisible(false);
+              }}>
+              <Picker.Item label="ALL" value="ALL" />
+              {
+                // types.map((item, index) => (
+                //   <Picker.Item label={item} value={item} key={index} />
+                // ))
+              }
+            </Picker>
           </View>
-        </Modal>
-        <View style={{marginTop: 60}}>
-          <Text style={styles.brand2}>Your Tickers </Text>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={{
-              ...styles.content,
-              marginTop: 0,
-              height: '30%',
-              overflow: 'hidden',
-            }}>
-            {userInfo &&
-              userInfo.subscription &&
-              userInfo.subscription.map(item => {
-                return (
-                  <Ticker type="F & O" ticker={item.symbol} key={item.symbol} />
-                );
-              })}
-          </ScrollView>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('watchlist');
-            }}
-            style={styles.watchBtn}>
-            <Text style={styles.watchTxt}>Your WatchList </Text>
-          </TouchableOpacity>
         </View>
-        {/* </ScrollView> */}
-      </ImageBackground>
-    </ScrollView>
+      </Modal>
+      <View style={{marginTop: 20}}>
+        {userInfo && userInfo.subscription && userInfo.subscription.length > 0 && (
+          <>
+            <Text style={styles.brand2}>Your Tickers </Text>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{
+                ...styles.content,
+                marginTop: 0,
+                height: '20%',
+                overflow: 'hidden',
+              }}>
+              {userInfo &&
+                userInfo.subscription &&
+                userInfo.subscription.map((item, index) => {
+                  return (
+                    <Ticker
+                      type="F & O"
+                      ticker={item.symbol}
+                      key={item.symbol}
+                      last={index == userInfo.subscription.length - 1}
+                    />
+                  );
+                })}
+            </ScrollView>
+          </>
+        )}
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('watchlist');
+          }}
+          style={styles.watchBtn}>
+          <Text style={styles.watchTxt}>Your WatchList </Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  containerCover: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     padding: 20,
@@ -356,6 +362,8 @@ const styles = StyleSheet.create({
   },
   options: {
     marginHorizontal: '5%',
+    height: '20%',
+    overflow: 'hidden',
   },
   option: {
     flexDirection: 'row',
@@ -489,7 +497,7 @@ const styles = StyleSheet.create({
   brand2: {
     fontSize: 18,
     fontFamily: 'Nunito-SemiBold',
-    marginBottom: 15,
+    marginBottom: 5,
     marginLeft: '3.5%',
   },
   headingW: {fontFamily: 'Lato-Bold', width: '50%'},
