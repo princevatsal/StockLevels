@@ -11,13 +11,22 @@ import {
 import {UserContext} from '../context/userContext';
 import Minus from '../assets/minus.png';
 import axios from 'axios';
-export default function Watchlist() {
-  const {watchlist, updateWatchlist} = useContext(UserContext);
+export default function Watchlist({navigation}) {
+  const {watchlist, userInfo, updateWatchlist} = useContext(UserContext);
 
   const Watch = ({symbol, strike, type, expiry}) => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
+    const [expired, setExpired] = useState(false);
     useEffect(() => {
+      if (
+        userInfo.subscription.find(item => item.symbol == symbol).subsExpiry <
+        Date.now()
+      ) {
+        setExpired(true);
+      } else {
+        setExpired(false);
+      }
       fetch(
         'https://stock-level-calculator.herokuapp.com/getlevel?strike=' +
           strike +
@@ -58,79 +67,100 @@ export default function Watchlist() {
           }}>
           <Image source={Minus} style={styles.minus} />
         </TouchableOpacity>
-        <View
-          style={{
-            ...styles.row,
-            paddingVertical: 5,
-          }}>
-          <Text style={styles.headingW}>
-            {'' + symbol + ' ' + strike + ' ' + type + ' ' + expiry}
-          </Text>
-          <View style={styles.rightTargets}>
-            <Text style={styles.target}>T1</Text>
-            <Text style={styles.target}>T2</Text>
-            <Text style={styles.target}>T3</Text>
-            <Text
-              style={{...styles.target, borderRightWidth: 0, color: '#D35400'}}>
-              SL
+        {expired ? (
+          <View style={styles.expired}>
+            <Text style={styles.expiredTxt}>
+              Subscription for {symbol} is expired
             </Text>
+            <TouchableOpacity
+              style={styles.expiredBtn}
+              onPress={() => {
+                navigation.navigate('subs', {symbol});
+              }}>
+              <Text style={styles.expiredBtnTxt}>Renew</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-        {!loading && data ? (
-          <>
-            <View style={styles.row}>
-              <Text style={{...styles.headingW, color: 'green'}}>
-                {'Buy above'} {data.buyAbove.toFixed(2)}
-              </Text>
-              <View style={styles.rightTargets}>
-                <Text style={{...styles.target, color: 'green'}}>
-                  {data.T1.toFixed(2)}
-                </Text>
-                <Text style={{...styles.target, color: 'green'}}>
-                  {data.T2.toFixed(2)}
-                </Text>
-                <Text style={{...styles.target, color: 'green'}}>
-                  {data.T3.toFixed(2)}
-                </Text>
-                <Text
-                  style={{
-                    ...styles.target,
-                    color: '#D35400',
-                    borderRightWidth: 0,
-                  }}>
-                  {data.buySL.toFixed(2)}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.row}>
-              <Text style={{...styles.headingW, color: 'red'}}>
-                {'Sell Below'} {data.sellBelow.toFixed(2)}
-              </Text>
-              <View style={styles.rightTargets}>
-                <Text style={{...styles.target, color: 'red'}}>
-                  {data.R1.toFixed(2)}
-                </Text>
-                <Text style={{...styles.target, color: 'red'}}>
-                  {data.R2.toFixed(2)}
-                </Text>
-                <Text style={{...styles.target, color: 'red'}}>
-                  {data.R3.toFixed(2)}
-                </Text>
-                <Text
-                  style={{
-                    ...styles.target,
-                    color: '#D35400',
-                    borderRightWidth: 0,
-                  }}>
-                  {data.sellSL.toFixed(2)}
-                </Text>
-              </View>
-            </View>
-          </>
         ) : (
-          <View style={{...styles.row, marginVertical: 30}}>
-            <ActivityIndicator color="green" size={23} />
-          </View>
+          <>
+            <View
+              style={{
+                ...styles.row,
+                paddingVertical: 5,
+              }}>
+              <Text style={styles.headingW}>
+                {'' + symbol + ' ' + strike + ' ' + type + ' ' + expiry}
+              </Text>
+              <View style={styles.rightTargets}>
+                <Text style={styles.target}>T1</Text>
+                <Text style={styles.target}>T2</Text>
+                <Text style={styles.target}>T3</Text>
+                <Text
+                  style={{
+                    ...styles.target,
+                    borderRightWidth: 0,
+                    color: '#D35400',
+                  }}>
+                  SL
+                </Text>
+              </View>
+            </View>
+            {!loading && data ? (
+              <>
+                <View style={styles.row}>
+                  <Text style={{...styles.headingW, color: 'green'}}>
+                    {'Buy above'} {data.buyAbove.toFixed(2)}
+                  </Text>
+                  <View style={styles.rightTargets}>
+                    <Text style={{...styles.target, color: 'green'}}>
+                      {data.T1.toFixed(2)}
+                    </Text>
+                    <Text style={{...styles.target, color: 'green'}}>
+                      {data.T2.toFixed(2)}
+                    </Text>
+                    <Text style={{...styles.target, color: 'green'}}>
+                      {data.T3.toFixed(2)}
+                    </Text>
+                    <Text
+                      style={{
+                        ...styles.target,
+                        color: '#D35400',
+                        borderRightWidth: 0,
+                      }}>
+                      {data.buySL.toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.row}>
+                  <Text style={{...styles.headingW, color: 'red'}}>
+                    {'Sell Below'} {data.sellBelow.toFixed(2)}
+                  </Text>
+                  <View style={styles.rightTargets}>
+                    <Text style={{...styles.target, color: 'red'}}>
+                      {data.R1.toFixed(2)}
+                    </Text>
+                    <Text style={{...styles.target, color: 'red'}}>
+                      {data.R2.toFixed(2)}
+                    </Text>
+                    <Text style={{...styles.target, color: 'red'}}>
+                      {data.R3.toFixed(2)}
+                    </Text>
+                    <Text
+                      style={{
+                        ...styles.target,
+                        color: '#D35400',
+                        borderRightWidth: 0,
+                      }}>
+                      {data.sellSL.toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <View style={{...styles.row, marginVertical: 30}}>
+                <ActivityIndicator color="green" size={23} />
+              </View>
+            )}
+          </>
         )}
       </View>
     );
@@ -209,5 +239,28 @@ const styles = StyleSheet.create({
     borderRightColor: '#a1a1a1',
     textAlign: 'center',
     fontFamily: 'Lato-SemiBold',
+  },
+  expired: {
+    marginTop: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  expiredTxt: {
+    fontFamily: 'Nunito-SemiBold',
+    fontSize: 18,
+    color: 'red',
+    marginHorizontal: 5,
+  },
+  expiredBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#16a086',
+    borderRadius: 20,
+    marginTop: 15,
+  },
+  expiredBtnTxt: {
+    fontFamily: 'Lato-Regular',
+    fontSize: 15,
+    color: '#fff',
   },
 });
